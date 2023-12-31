@@ -1,0 +1,35 @@
+{
+  "name": "remnant2gear",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/cache": "latest",
+    "@emotion/react": "latest",
+    "@emotion/server": "latest",
+    "@emotion/styled": "latest",
+    "@mui/icons-material": "latest",
+    "@mui/material": "latest",
+    "axios": "^1.2.2",
+    "dayjs": "^1.11.7",
+    "mui-color-input": "^2.0.0",
+    "next": "latest",
+    "next-plausible": "^3.7.0",
+    "next-seo": "^5.15.0",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-markdown": "^8.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "typescript": "latest"
+  }
+}
