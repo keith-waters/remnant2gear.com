@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, styled, CardMedia } from "@mui/material";
+import { Box, Button, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, styled, CardMedia, Divider } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2'
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
-import { usePapaParse } from 'react-papaparse';
+import { useGetGearData } from '../dataHelpers';
 
 function GearCard({gear}: {gear: any}) {
   return (
@@ -28,55 +28,23 @@ function GearCard({gear}: {gear: any}) {
   )
 }
 
-const convertCSVToJson = (lines: string[][]) => {
-  const headers: string[] = lines[0];
-  const result = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const obj:any = {};
-    const currentLine = lines[i];
-
-    for (let j = 0; j < headers.length; j++) {
-      obj[headers[j].trim()] = currentLine[j].trim();
-    }
-
-    result.push(obj);
-  }
-
-  return result;
-};
-
 const Home = () => {
-  const { readRemoteFile } = usePapaParse();
-  const url = process.env.NEXT_PUBLIC_GOOGLE_SHEET ?? ''
-
-  const [_gear, set_Gear]:[_gear:any[], set_Gear:Function] = useState([])
+  const [ _gear, gearTypes, gearTags ] = useGetGearData();
   const [loading, setLoading] = useState(true)
-  const handleReadRemoteFile = () => {
-    readRemoteFile(url, {
-      download: true,
-      complete: (results) => {
-        const data = convertCSVToJson(results.data as string[][])
-        const cleanedData = [data[0], ...data.filter(d => d.Name)]
-        set_Gear(cleanedData)
-        setGear(cleanedData)
-        setLoading(false)
-      },
-    });
-  };
+  const [gear, setGear] = useState(_gear)
 
   useEffect(() => {
-    handleReadRemoteFile()
-  }, [])
+    setGear(_gear)
+    if (_gear.length > 0) setLoading(false)
+  }, [_gear])
 
-
-
-
-  const [gear, setGear] = useState(_gear)
   const getFilters = () => {
     return _gear.length > 0 ? Object.keys(_gear[0]).slice(5) : []
   }
-  const filterOptions = getFilters()
+
+
+
+  const filterOptions = gearTags
   const filterData = (data:any) => {
     const filteredGear = _gear.filter((g:any) => {
       let v = false
@@ -107,6 +75,25 @@ const Home = () => {
       <FormControl>
         <Button type='submit' variant='outlined' onClick={handleSubmit((filterData))}>Apply filters</Button>
         <Button variant='outlined' onClick={handleReset}>Reset</Button>
+        <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Gear type</Typography>
+        <Divider />
+        {gearTypes.map(filter => {
+          return (
+            <FormControlLabel
+              key={filter}
+              label={filter}
+              control={
+                <Controller
+                  control={control}
+                  name={filter}
+                  render={({field}) => (<Checkbox {...field} checked={field.value ?? false} />)}
+                />
+              }
+            />
+          )
+        })}
+        <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Effect</Typography>
+        <Divider />
         {filterOptions.map(filter => {
           return (
             <FormControlLabel
@@ -125,11 +112,6 @@ const Home = () => {
       </FormControl>
     </Box>
   )
-
-  const filterBy = (filter: string) => {
-    const filteredGear = gear.filter((g:any) => g[filter] === 1)
-    setGear(filteredGear)
-  }
 
   return (
     <Box sx={{display: 'flex'}}>
