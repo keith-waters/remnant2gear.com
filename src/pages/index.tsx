@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, styled, CardMedia, Divider } from "@mui/material";
+import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, styled, CardMedia, Divider } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2'
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
 import { useGetGearData } from '../dataHelpers';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-function GearCard({gear}: {gear: any}) {
+
+function GearCard({gear, gearTypes}: {gear: any, gearTypes: string[]}) {
   return (
     <CardActionArea LinkComponent={Link} href={gear.url}>
       <Card variant='outlined' sx={{display: 'flex', marginTop: theme.spacing(2), marginBottom: theme.spacing(2), maxWidth: "400px"}}>
@@ -19,6 +21,7 @@ function GearCard({gear}: {gear: any}) {
             <Typography variant='h4'>
               {gear.Name}
             </Typography>
+            <Chip size='small' label={gearTypes.filter(g => gear[g] === "1")[0]} />
             <Typography color='text.secondary'>
               {gear.Description}
             </Typography>
@@ -113,25 +116,46 @@ const Home = () => {
     </Box>
   )
 
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+
+  const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
+    <>
+    {!showDesktopDrawer && (<Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Open</Button>)}
     <Box sx={{display: 'flex'}}>
-      <Drawer
-        variant="permanent"
-        open
-        sx={{
-          minHeight: '100vh',
-          display: { xs: 'none', sm: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40), position: 'relative' },
-        }}
-      >
-        {drawer}
-      </Drawer>
+      {showDesktopDrawer ? (
+        <Drawer
+          variant="permanent"
+          open
+          sx={{
+            minHeight: '100vh',
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40), position: 'relative' },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      ) : (
+        <Drawer
+          open={isMobileDrawerOpen}
+          sx={{
+            minHeight: '100vh',
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40) },
+          }}
+        >
+
+          <Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Close</Button>
+          {drawer}
+        </Drawer>
+      )
+      }
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Grid container spacing={2}>
         {gear.length > 0 ? gear.map((item) => {
             return item.Name && (
               <Grid key={item.Name}>
-                <GearCard gear={item} />
+                <GearCard gear={item} gearTypes={gearTypes} />
               </Grid>
             )
           }
@@ -141,6 +165,7 @@ const Home = () => {
         </Grid>
       </Box>
     </Box>
+    </>
   );
 };
 
