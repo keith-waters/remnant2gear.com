@@ -130,7 +130,7 @@ const Home = () => {
           sx={{
             minHeight: '100vh',
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40), position: 'relative' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40) },
           }}
         >
           {drawer}
@@ -150,7 +150,7 @@ const Home = () => {
         </Drawer>
       )
       }
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: showDesktopDrawer ? theme.spacing(40) : 'inherit' }}>
         <Grid container spacing={2}>
         {gear.length > 0 ? gear.map((item) => {
             return item.Name && (
