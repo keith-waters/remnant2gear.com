@@ -35,9 +35,9 @@ const Home = () => {
     return Object.keys(_gear[0]).slice(6)
   }
   const filterOptions = getFilters()
-  const filterData = (data) => {
+  const filterData = (data:any) => {
     console.log('>>>', data)
-    const filteredGear = _gear.filter(g => {
+    const filteredGear = _gear.filter((g:any) => {
       let v = false
       for (const [key, value] of Object.entries(data)) {
         if (value) {
@@ -50,7 +50,7 @@ const Home = () => {
     setGear(filteredGear)
   }
 
-  const defaultValues = {}
+  const defaultValues:any = {}
   filterOptions.forEach(f => {
     defaultValues[f] = false;
   })
@@ -86,7 +86,7 @@ const Home = () => {
   )
 
   const filterBy = (filter: string) => {
-    const filteredGear = gear.filter(g => g[filter] === 1)
+    const filteredGear = gear.filter((g:any) => g[filter] === 1)
     setGear(filteredGear)
   }
 
