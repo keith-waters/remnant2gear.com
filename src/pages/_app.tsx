@@ -38,7 +38,7 @@ export default function MyApp(props: MyAppProps) {
                   url: `https://${process.env.NEXT_PUBLIC_DOMAIN}/android-chrome-512x512.png`,
                   width: 512,
                   height: 512,
-                  alt: 'Smol Page logo',
+                  alt: 'R2G',
                 },
               ]
             }}
