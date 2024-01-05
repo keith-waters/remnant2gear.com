@@ -11,13 +11,19 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 function GearCard({gear, gearTypes}: {gear: any, gearTypes: string[]}) {
   return (
     <CardActionArea LinkComponent={Link} href={gear.url}>
-      <Card variant='outlined' sx={{display: 'flex', marginTop: theme.spacing(2), marginBottom: theme.spacing(2), maxWidth: "400px"}}>
+      <Card variant='outlined' sx={{display: 'flex', maxWidth: "400px", padding: theme.spacing(1)}}>
           <CardMedia 
             component='img'
-            src={gear.image}
-            sx={{width: '200px'}}
+            src={gear['image-url']}
+            sx={{
+              display: 'block',
+              maxWidth: '100px',
+              maxHeight: '100px',
+              width: 'auto',
+              height: 'auto',
+            }}
           />
-          <CardContent>
+          <CardContent sx={{padding: 0}}>
             <Typography variant='h4'>
               {gear.Name}
             </Typography>
@@ -74,7 +80,7 @@ const Home = () => {
   }
 
   const drawer = (
-    <Box>
+    <Box sx={{ margin: theme.spacing(2)}}>
       <FormControl>
         <Button type='submit' variant='outlined' onClick={handleSubmit((filterData))}>Apply filters</Button>
         <Button variant='outlined' onClick={handleReset}>Reset</Button>
