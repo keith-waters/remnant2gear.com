@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { usePapaParse } from 'react-papaparse';
 
 const convertCSVToJson = (lines: string[][]) => {
-  const headers: string[] = lines[0];
+  const headers: string[] = lines[0].map(l => l.replaceAll('|', '-'));
   const result = [];
 
   for (let i = 1; i < lines.length; i++) {
@@ -20,17 +20,18 @@ const convertCSVToJson = (lines: string[][]) => {
 };
 
 const getGearTags = (_gear:string[]) => {
-  return _gear.length > 0 ? _gear.slice(_gear.indexOf('begin-tags') + 1) : []
-}
-
-const getGearTypes = (_gear:string[]) => {
-  return _gear.length > 0 ? _gear.slice(_gear.indexOf('begin-type') + 1, _gear.indexOf('end-type')) : []
+  const gearTags:{label: string, key: string}[] = []
+  if (_gear.length > 0) {
+    _gear.slice(_gear.indexOf('begin-tags') + 1).forEach(g => {
+      gearTags.push({label: g, key: g.replaceAll('|', '-')})
+    })
+  }
+  return gearTags
 }
 
 // gets the full csv from the Google Sheet and converts it to json
 export const useGetGearData = () => {  
   const [gear, setGear]:[gear:any[], setGear:Function] = useState([])
-  const [gearTypes, setGearTypes]:[gearTypes:string[], setGearTypes:Function] = useState([])
   const [gearTags, setGearTags]:[gearTags:string[], setGearTags:Function] = useState([])
 
   const handleReadRemoteFile = () => {
@@ -41,11 +42,10 @@ export const useGetGearData = () => {
       download: true,
       complete: (results) => {
 
-        setGearTypes(getGearTypes(results.data[0] as string[]))
         setGearTags(getGearTags(results.data[0] as string[]))
 
         const data = convertCSVToJson(results.data as string[][])
-        const cleanedData = data.filter(d => d.Name)
+        const cleanedData = data.filter(d => d.name)
         setGear(cleanedData)
       },
     });
@@ -55,5 +55,5 @@ export const useGetGearData = () => {
     handleReadRemoteFile()
   }, [])
 
-  return [gear, gearTypes, gearTags]
+  return [gear, gearTags]
 }

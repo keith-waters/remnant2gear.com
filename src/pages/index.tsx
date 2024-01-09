@@ -8,10 +8,10 @@ import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 
-function GearCard({gear, gearTypes}: {gear: any, gearTypes: string[]}) {
+function GearCard({gear}: {gear: any}) {
   return (
-    <CardActionArea LinkComponent={Link} href={gear.url}>
-      <Card variant='outlined' sx={{display: 'flex', maxWidth: "400px", padding: theme.spacing(1)}}>
+    <CardActionArea LinkComponent={Link} href={gear.url} sx={{marginBottom: theme.spacing(2)}}>
+      <Card variant='outlined' sx={{display: 'flex', minWidth: "100%", padding: theme.spacing(1), }}>
           <CardMedia 
             component='img'
             src={gear['image-url']}
@@ -25,12 +25,10 @@ function GearCard({gear, gearTypes}: {gear: any, gearTypes: string[]}) {
           />
           <CardContent sx={{padding: 0}}>
             <Typography variant='h4'>
-              {gear.Name}
+              {gear.name}
             </Typography>
-            <Chip size='small' label={gearTypes.filter(g => gear[g] === "1")[0]} />
-            <Typography color='text.secondary'>
-              {gear.Description}
-            </Typography>
+            <Chip size='small' label={gear.equipmentType} />
+            <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
           </CardContent>
       </Card>
     </CardActionArea>
@@ -38,28 +36,29 @@ function GearCard({gear, gearTypes}: {gear: any, gearTypes: string[]}) {
 }
 
 const Home = () => {
-  const [ _gear, gearTypes, gearTags ] = useGetGearData();
+  const [ _gear, gearTags ] = useGetGearData();
   const [loading, setLoading] = useState(true)
   const [gear, setGear] = useState(_gear)
+  const [filterOptions, setFilterOptions] = useState(gearTags)
+  const { handleSubmit, reset, control } = useForm({mode: 'onChange'})
 
   useEffect(() => {
     setGear(_gear)
     if (_gear.length > 0) setLoading(false)
   }, [_gear])
 
-  const getFilters = () => {
-    return _gear.length > 0 ? Object.keys(_gear[0]).slice(5) : []
-  }
+  useEffect(() => {
+    if (filterOptions.length === 0) setFilterOptions(gearTags)
+    if (filterOptions.length > 0) setLoading(false)
+  }, [gearTags])
 
-
-
-  const filterOptions = gearTags
   const filterData = (data:any) => {
+    console.log('-----', data)
     const filteredGear = _gear.filter((g:any) => {
       let v = false
       for (const [key, value] of Object.entries(data)) {
         if (value) {
-          v = g[key] === '1'
+          v = g[key] === "1"
           if (v === false) break
         }
       }
@@ -68,51 +67,40 @@ const Home = () => {
     setGear(filteredGear)
   }
 
-  const defaultValues:any = {}
-  filterOptions.forEach(f => {
-    defaultValues[f] = false;
-  })
-  const { handleSubmit, reset, control } = useForm({defaultValues})
 
+  const defaultValues:any = {}
+  gearTags.forEach(filter => {
+    defaultValues[filter.key] = false
+  })
   const handleReset = () => {
-    reset()
+    reset({defaultValues})
     setGear(_gear)
   }
 
   const drawer = (
     <Box sx={{ margin: theme.spacing(2)}}>
       <FormControl>
-        <Button type='submit' variant='outlined' onClick={handleSubmit((filterData))}>Apply filters</Button>
+        <Button type='submit' variant='outlined' onClick={handleSubmit(filterData)}>Apply filters</Button>
         <Button variant='outlined' onClick={handleReset}>Reset</Button>
         <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Gear type</Typography>
         <Divider />
-        {gearTypes.map(filter => {
-          return (
-            <FormControlLabel
-              key={filter}
-              label={filter}
-              control={
-                <Controller
-                  control={control}
-                  name={filter}
-                  render={({field}) => (<Checkbox {...field} checked={field.value ?? false} />)}
-                />
-              }
-            />
-          )
-        })}
         <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Effect</Typography>
         <Divider />
         {filterOptions.map(filter => {
           return (
             <FormControlLabel
-              key={filter}
-              label={filter}
+              key={filter.key}
+              label={filter.key}
               control={
                 <Controller
                   control={control}
-                  name={filter}
-                  render={({field}) => (<Checkbox {...field} checked={field.value ?? false} />)}
+                  name={filter.key}
+                  defaultValue={false}
+                  render={({field}) => {
+                    return (
+                      <Checkbox {...field} checked={field.value} />
+                    )
+                  }}
                 />
               }
             />
@@ -124,12 +112,13 @@ const Home = () => {
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
+  console.log(gear)
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
     <>
     {!showDesktopDrawer && (<Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Open</Button>)}
     <Box sx={{display: 'flex'}}>
-      {showDesktopDrawer ? (
+      {filterOptions.length > 0 && showDesktopDrawer ? (
         <Drawer
           variant="permanent"
           open
@@ -157,18 +146,16 @@ const Home = () => {
       )
       }
       <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: showDesktopDrawer ? theme.spacing(40) : 'inherit' }}>
-        <Grid container spacing={2}>
+        <Box>
         {gear.length > 0 ? gear.map((item) => {
-            return item.Name && (
-              <Grid key={item.Name}>
-                <GearCard gear={item} gearTypes={gearTypes} />
-              </Grid>
+            return item.name && (
+              <GearCard key={item.name} gear={item} />
             )
           }
         ) : (
           loading ? <p>Gathering data....</p>: <p>nothing to report</p>
         )}
-        </Grid>
+        </Box>
       </Box>
     </Box>
     </>

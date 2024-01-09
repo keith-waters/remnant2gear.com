@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "scrape": "ts-node ./src/scripts/getData.ts"
   },
   "dependencies": {
     "@emotion/cache": "latest",
@@ -21,11 +22,13 @@
     "next": "latest",
     "next-plausible": "^3.7.0",
     "next-seo": "^5.15.0",
+    "playwright": "^1.40.1",
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "^7.49.2",
     "react-markdown": "^8.0.5",
-    "react-papaparse": "^4.4.0"
+    "react-papaparse": "^4.4.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "latest",
