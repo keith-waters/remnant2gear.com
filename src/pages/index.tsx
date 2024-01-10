@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, styled, CardMedia, Divider } from "@mui/material";
-import Grid from '@mui/material/Unstable_Grid2'
+import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider } from "@mui/material";
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
@@ -36,10 +35,9 @@ function GearCard({gear}: {gear: any}) {
 }
 
 const Home = () => {
-  const [ _gear, gearTags ] = useGetGearData();
+  const { gear: _gear, groups } = useGetGearData();
   const [loading, setLoading] = useState(true)
   const [gear, setGear] = useState(_gear)
-  const [filterOptions, setFilterOptions] = useState(gearTags)
   const { handleSubmit, reset, control } = useForm({mode: 'onChange'})
 
   useEffect(() => {
@@ -47,18 +45,12 @@ const Home = () => {
     if (_gear.length > 0) setLoading(false)
   }, [_gear])
 
-  useEffect(() => {
-    if (filterOptions.length === 0) setFilterOptions(gearTags)
-    if (filterOptions.length > 0) setLoading(false)
-  }, [gearTags])
-
   const filterData = (data:any) => {
-    console.log('-----', data)
     const filteredGear = _gear.filter((g:any) => {
       let v = false
       for (const [key, value] of Object.entries(data)) {
         if (value) {
-          v = g[key] === "1"
+          v = g[key] === "1" || g.equipmentType === key
           if (v === false) break
         }
       }
@@ -67,13 +59,8 @@ const Home = () => {
     setGear(filteredGear)
   }
 
-
-  const defaultValues:any = {}
-  gearTags.forEach(filter => {
-    defaultValues[filter.key] = false
-  })
   const handleReset = () => {
-    reset({defaultValues})
+    reset()
     setGear(_gear)
   }
 
@@ -82,43 +69,50 @@ const Home = () => {
       <FormControl>
         <Button type='submit' variant='outlined' onClick={handleSubmit(filterData)}>Apply filters</Button>
         <Button variant='outlined' onClick={handleReset}>Reset</Button>
-        <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Gear type</Typography>
-        <Divider />
-        <Typography variant='h5' sx={{ margin: theme.spacing(2) }}>Effect</Typography>
-        <Divider />
-        {filterOptions.map(filter => {
-          return (
-            <FormControlLabel
-              key={filter.key}
-              label={filter.key}
-              control={
-                <Controller
-                  control={control}
-                  name={filter.key}
-                  defaultValue={false}
-                  render={({field}) => {
-                    return (
-                      <Checkbox {...field} checked={field.value} />
-                    )
-                  }}
-                />
-              }
-            />
-          )
-        })}
+        {  
+          Object.keys(groups).map((group:string) => {
+            const g = groups[group];
+            return (
+              <Box key={group} sx={{ display: 'flex', flexDirection: 'column'}}>
+                <Typography variant='h5' sx={{ marginTop: theme.spacing(2) }}>{group}</Typography><Divider />
+                {g.tags.map((filter:any) => {
+                  return (
+                    <>
+                      <FormControlLabel
+                        key={filter.key}
+                        label={filter.label}
+                        control={
+                          <Controller
+                            control={control}
+                            name={filter.key}
+                            defaultValue={false}
+                            render={({field}) => {
+                              return (
+                                <Checkbox {...field} checked={field.value} />
+                              )
+                            }}
+                          />
+                        }
+                      />
+                    </>
+                  )
+                })}
+              </Box>
+            )
+          })
+        }
       </FormControl>
     </Box>
   )
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
-  console.log(gear)
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
     <>
     {!showDesktopDrawer && (<Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Open</Button>)}
     <Box sx={{display: 'flex'}}>
-      {filterOptions.length > 0 && showDesktopDrawer ? (
+      {showDesktopDrawer ? (
         <Drawer
           variant="permanent"
           open

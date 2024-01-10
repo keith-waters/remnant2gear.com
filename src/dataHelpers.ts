@@ -19,20 +19,48 @@ const convertCSVToJson = (lines: string[][]) => {
   return result;
 };
 
-const getGearTags = (_gear:string[]) => {
-  const gearTags:{label: string, key: string}[] = []
+const getTagGroups = (_gear:string[]) => {
+  type Tags = {label: string, key: string, group: string}[]
+  let groupName = ''
+  let tempTags:Tags = []
+  let groupsObject:any = {}
+
   if (_gear.length > 0) {
-    _gear.slice(_gear.indexOf('begin-tags') + 1).forEach(g => {
-      gearTags.push({label: g, key: g.replaceAll('|', '-')})
+    const tags = _gear.slice(_gear.indexOf('begin-tags') + 1)
+    tags.forEach(tag => {
+      if (groupName !== tag.split('|')[0]) {
+        if (groupName.length > 0) {
+          groupsObject[groupName] = {
+            groupName,
+            tags: groupsObject[groupName] ? [...groupsObject[groupName].tags, ...tempTags] : tempTags
+          }
+        }
+        groupName = tag.split('|')[0]
+        tempTags = []
+      }
+      tempTags.push({label: tag.split('|').pop() || 'no label', key: tag.replaceAll('|', '-'), group: tag.split('|')[0]})
     })
   }
-  return gearTags
+  return groupsObject
+}
+
+const getTypes = (gear:any[]) => {
+  const type:{groupName: string, tags: any[]} = {
+    groupName: 'Type',
+    tags: []
+  }
+  const allTypes = gear.map(g => g.equipmentType)
+  const typeStrings = new Set(allTypes)
+  typeStrings.forEach(tag => {
+    if(tag.length > 0) type.tags.push({label: tag.split('|').pop() || 'no label', key: tag.replaceAll('|', '-'), group: tag.split('|')[0]})
+  })
+  return type 
 }
 
 // gets the full csv from the Google Sheet and converts it to json
 export const useGetGearData = () => {  
   const [gear, setGear]:[gear:any[], setGear:Function] = useState([])
-  const [gearTags, setGearTags]:[gearTags:string[], setGearTags:Function] = useState([])
+  const [groups, setGroups]:[groups:{[key:string]: any}, setGroups:Function] = useState({})
 
   const handleReadRemoteFile = () => {
     const { readRemoteFile } = usePapaParse();
@@ -41,11 +69,12 @@ export const useGetGearData = () => {
     readRemoteFile(url, {
       download: true,
       complete: (results) => {
-
-        setGearTags(getGearTags(results.data[0] as string[]))
-
         const data = convertCSVToJson(results.data as string[][])
         const cleanedData = data.filter(d => d.name)
+        const types = getTypes(cleanedData)
+        const tags = getTagGroups(results.data[0] as string[])
+        const groups = {Type: types, ...tags}
+        setGroups(groups)
         setGear(cleanedData)
       },
     });
@@ -55,5 +84,5 @@ export const useGetGearData = () => {
     handleReadRemoteFile()
   }, [])
 
-  return [gear, gearTags]
+  return {gear, groups}
 }
