@@ -6,29 +6,58 @@ import { useForm, Controller } from 'react-hook-form'
 import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
+const StandardContent = ({gear}:{gear:any}) => {
+  return (
+    <CardContent sx={{padding: 0}}>
+      <Typography variant='h4'>
+        {gear.name}
+      </Typography>
+      <Chip size='small' label={gear.equipmentType} />
+      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+    </CardContent>
+  )
+}
+
+const PerkContent = ({gear}:{gear:any}) => {
+  return (
+    <CardContent sx={{padding: 0}}>
+      <Typography variant='h4'>
+        {gear.name}
+      </Typography>
+      <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
+      <Chip size='small' label={gear.archetype} sx={{marginRight: theme.spacing(1)}}/>
+      <Chip size='small' label={gear.perkType} sx={{marginRight: theme.spacing(1)}}/>
+      <Typography color='text.secondary'><strong>Effect: </strong>{gear.perkEffect}</Typography>
+      <Divider />
+      <Typography color='text.secondary'><strong>Upgrade 1: </strong>{gear.perkUpgrade1}</Typography>
+      <Divider />
+      <Typography color='text.secondary'><strong>Upgrade 2: </strong>{gear.perkUpgrade2}</Typography>
+    </CardContent>
+  )
+}
+
+const GearCardContent = ({gear}:{gear:any}) => {
+  if (gear.equipmentType === 'Perk') return <PerkContent gear={gear} />
+  return <StandardContent gear={gear} />
+}
 
 function GearCard({gear}: {gear: any}) {
+  const baseUrl = 'https://remnant2.wiki.fextralife.com'
+  const imgUrl = gear.wikiImageUrl ? baseUrl + gear.wikiImageUrl : '/android-chrome-192x192.png'
   return (
     <CardActionArea LinkComponent={Link} href={gear.url} sx={{marginBottom: theme.spacing(2)}}>
       <Card variant='outlined' sx={{display: 'flex', minWidth: "100%", padding: theme.spacing(1), }}>
           <CardMedia 
             component='img'
-            src={gear['image-url']}
+            src={imgUrl}
             sx={{
               display: 'block',
-              maxWidth: '100px',
-              maxHeight: '100px',
-              width: 'auto',
-              height: 'auto',
+              width: '75px',
+              height: '75px',
+              marginRight: theme.spacing(1)
             }}
           />
-          <CardContent sx={{padding: 0}}>
-            <Typography variant='h4'>
-              {gear.name}
-            </Typography>
-            <Chip size='small' label={gear.equipmentType} />
-            <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
-          </CardContent>
+          <GearCardContent gear={gear} />
       </Card>
     </CardActionArea>
   )
