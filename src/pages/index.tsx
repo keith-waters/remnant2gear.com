@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
 import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRouter } from 'next/router';
 
 const StandardContent = ({gear}:{gear:any}) => {
   return (
@@ -67,10 +68,17 @@ const Home = () => {
   const { gear: _gear, groups } = useGetGearData();
   const [loading, setLoading] = useState(true)
   const [gear, setGear] = useState(_gear)
-  const { handleSubmit, reset, control } = useForm({mode: 'onChange'})
+  const { handleSubmit, reset, control, setValue } = useForm({mode: 'onChange'})
+  const router = useRouter()
 
   useEffect(() => {
-    setGear(_gear)
+    const keys = Object.keys(router.query)
+    if(keys.length > 0) {
+      keys.forEach(key => setValue(key, !!router.query[key]))
+      handleSubmit(filterData)()
+    } else {
+      setGear(_gear)
+    }
     if (_gear.length > 0) setLoading(false)
   }, [_gear])
 
@@ -85,8 +93,18 @@ const Home = () => {
       }
       return v
     })
+    let params = '?'
+    for (const [key, value] of Object.entries(data)) {
+      if (value) {
+        params += `${key}=${value}&`
+      }
+    }
+
+    if (params.slice(-1) === '&' || params.slice(-1) === '?') params = params.slice(0, -1)
+    router.push(params, '', {shallow: true})
     setGear(filteredGear)
   }
+
 
   const handleReset = () => {
     reset()
