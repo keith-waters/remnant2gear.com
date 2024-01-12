@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, MouseEventHandler } from 'react';
 import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton } from "@mui/material";
 import theme from '../theme'
 import Link from 'next/link'
@@ -8,26 +8,30 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import MenuIcon from '@mui/icons-material/Menu'
 
-const R2GAppBar = () => {
+const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>}) => {
+  const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
-  <AppBar position="static">
+  <AppBar position="static" sx={{ paddingLeft: !showDesktopDrawer ? 'inherit' : theme.spacing(40)}}>
   <Toolbar>
-    <IconButton
-      size="large"
-      edge="start"
-      color="inherit"
-      aria-label="open drawer"
-      sx={{ mr: 2 }}
-    >
-      <MenuIcon />
-    </IconButton>
+    {!showDesktopDrawer && 
+      <IconButton
+        size="large"
+        edge="start"
+        color="inherit"
+        aria-label="open drawer"
+        sx={{ mr: 2 }}
+        onClick={openDrawer}
+      >
+        <MenuIcon />
+      </IconButton>
+    }
     <Typography
       variant="h6"
       noWrap
       component="div"
-      sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+      sx={{ flexGrow: 1,  }}
     >
-      MUI
+      Remnant 2 Gear
     </Typography>
   </Toolbar>
   </AppBar>
@@ -105,7 +109,7 @@ function GearCard({gear}: {gear: any}) {
   const imgUrl = gear.wikiImageUrl ? baseUrl + gear.wikiImageUrl : '/android-chrome-192x192.png'
   return (
     <CardActionArea LinkComponent={Link} href={gear.url} sx={{marginBottom: theme.spacing(2)}}>
-      <Card variant='outlined' sx={{display: 'flex', minWidth: "100%", padding: theme.spacing(1), }}>
+      <Card variant='outlined' sx={{display: 'flex', padding: theme.spacing(1), maxWidth: '88vw'}}>
           <CardMedia 
             component='img'
             src={imgUrl}
@@ -127,7 +131,7 @@ const Home = () => {
   const { gear: _gear, groups } = useGetGearData();
   const [loading, setLoading] = useState(true)
   const [gear, setGear] = useState(_gear)
-  const { handleSubmit, reset, control, setValue } = useForm({mode: 'onChange'})
+  const { handleSubmit, reset, control, setValue } = useForm()
   const router = useRouter()
 
   useEffect(() => {
@@ -171,37 +175,47 @@ const Home = () => {
     setGear(_gear)
   }
 
-  const drawer = (
-    <Box sx={{ margin: theme.spacing(2)}}>
-      <FormControl>
-        <Button type='submit' variant='outlined' onClick={handleSubmit(filterData)}>Apply filters</Button>
-        <Button variant='outlined' onClick={handleReset}>Reset</Button>
+  const DrawerContent = ({showDesktopDrawer, setIsMobileDrawerOpen}:{showDesktopDrawer?: boolean, setIsMobileDrawerOpen?: Function}) => (
+    <Box sx={{ marginRight: theme.spacing(2), marginLeft: theme.spacing(2), marginBottom: theme.spacing(2)}}>
+
+      <Toolbar disableGutters sx={{position: 'fixed', zIndex: theme.zIndex.drawer + 1, width: theme.spacing(32)}}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
+          <Button type='submit' variant='contained' onClick={() => {
+            if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
+            handleSubmit(filterData)()
+          }}>Apply filters</Button>
+          <Button variant='contained' onClick={() => {
+            if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
+            handleReset()
+          }}>Reset</Button>
+        </Box>
+      </Toolbar>
+
+      <FormControl sx={{paddingTop: '64px'}}>
         {  
           Object.keys(groups).map((group:string) => {
             const g = groups[group];
             return (
-              <Box key={group} sx={{ display: 'flex', flexDirection: 'column'}}>
+              <Box key={g.groupName} sx={{ display: 'flex', flexDirection: 'column'}}>
                 <Typography variant='h5' sx={{ marginTop: theme.spacing(2) }}>{group}</Typography><Divider />
                 {g.tags.map((filter:any) => {
                   return (
-                    <>
-                      <FormControlLabel
-                        key={filter.key}
-                        label={filter.label}
-                        control={
-                          <Controller
-                            control={control}
-                            name={filter.key}
-                            defaultValue={false}
-                            render={({field}) => {
-                              return (
-                                <Checkbox {...field} checked={field.value} />
-                              )
-                            }}
-                          />
-                        }
-                      />
-                    </>
+                    <FormControlLabel
+                      key={filter.key}
+                      label={filter.label}
+                      control={
+                        <Controller
+                          control={control}
+                          name={filter.key}
+                          defaultValue={false}
+                          render={({field}) => {
+                            return (
+                              <Checkbox {...field} checked={field.value}/>
+                            )
+                          }}
+                        />
+                      }
+                    />
                   )
                 })}
               </Box>
@@ -217,10 +231,11 @@ const Home = () => {
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
     <>
-    {!showDesktopDrawer && (<Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Open</Button>)}
+    <R2GAppBar openDrawer={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}/>
     <Box sx={{display: 'flex'}}>
       {showDesktopDrawer ? (
         <Drawer
+          key='desktop'
           variant="permanent"
           open
           sx={{
@@ -229,25 +244,25 @@ const Home = () => {
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40), top: '64' },
           }}
         >
-          {drawer}
+          <DrawerContent />
         </Drawer>
       ) : (
         <Drawer
+          key='mobile'
           open={isMobileDrawerOpen}
+          onClose={() => setIsMobileDrawerOpen(false)}
           sx={{
             minHeight: '100vh',
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40) },
           }}
         >
-
-          <Button variant='contained' onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}>Close</Button>
-          {drawer}
+          <DrawerContent showDesktopDrawer={showDesktopDrawer} setIsMobileDrawerOpen={setIsMobileDrawerOpen}/>
         </Drawer>
       )
       }
-      <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: showDesktopDrawer ? theme.spacing(40) : 'inherit' }}>
-        <Box>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box sx={{ paddingLeft: showDesktopDrawer ? theme.spacing(40) : 0 }}>
         {gear.length > 0 ? gear.map((item) => {
             return item.name && (
               <GearCard key={item.name} gear={item} />
