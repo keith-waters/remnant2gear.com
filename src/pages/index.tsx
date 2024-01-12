@@ -1,11 +1,38 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider } from "@mui/material";
+import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton } from "@mui/material";
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
 import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
+import MenuIcon from '@mui/icons-material/Menu'
+
+const R2GAppBar = () => {
+  return (
+  <AppBar position="static">
+  <Toolbar>
+    <IconButton
+      size="large"
+      edge="start"
+      color="inherit"
+      aria-label="open drawer"
+      sx={{ mr: 2 }}
+    >
+      <MenuIcon />
+    </IconButton>
+    <Typography
+      variant="h6"
+      noWrap
+      component="div"
+      sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+    >
+      MUI
+    </Typography>
+  </Toolbar>
+  </AppBar>
+  )
+}
 
 const StandardContent = ({gear}:{gear:any}) => {
   return (
@@ -37,8 +64,39 @@ const PerkContent = ({gear}:{gear:any}) => {
   )
 }
 
+const MutatorContent = ({gear}:{gear:any}) => {
+  return (
+    <CardContent sx={{padding: 0}}>
+      <Typography variant='h4'>
+        {gear.name}
+      </Typography>
+      <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
+      <Chip size='small' label={gear.mutatorType} sx={{marginRight: theme.spacing(1)}}/>
+      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      <Divider />
+      <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.mutatorMaxLevelBonus}</Typography>
+    </CardContent>
+  )
+}
+
+const TraitContent = ({gear}:{gear:any}) => {
+  return (
+    <CardContent sx={{padding: 0}}>
+      <Typography variant='h4'>
+        {gear.name}
+      </Typography>
+      <Chip size='small' label={gear.traitType} sx={{marginRight: theme.spacing(1)}}/>
+      <Typography color='text.secondary'><strong>Effect: </strong>{gear.traitEffect}</Typography>
+      <Divider />
+      <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.traitMaxLevel}</Typography>
+    </CardContent>
+  )
+}
+
 const GearCardContent = ({gear}:{gear:any}) => {
   if (gear.equipmentType === 'Perk') return <PerkContent gear={gear} />
+  if (gear.equipmentType === 'Mutator') return <MutatorContent gear={gear} />
+  if (gear.equipmentType === 'Trait') return <TraitContent gear={gear} />
   return <StandardContent gear={gear} />
 }
 
@@ -57,6 +115,7 @@ function GearCard({gear}: {gear: any}) {
               height: '75px',
               marginRight: theme.spacing(1)
             }}
+            alt={gear.wikiImageAltText}
           />
           <GearCardContent gear={gear} />
       </Card>
@@ -108,6 +167,7 @@ const Home = () => {
 
   const handleReset = () => {
     reset()
+    router.push('', '', {shallow: true})
     setGear(_gear)
   }
 
@@ -166,7 +226,7 @@ const Home = () => {
           sx={{
             minHeight: '100vh',
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40) },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: theme.spacing(40), top: '64' },
           }}
         >
           {drawer}
