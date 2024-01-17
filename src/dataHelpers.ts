@@ -41,6 +41,10 @@ const getTagGroups = (_gear:string[]) => {
       tempTags.push({label: tag.split('|').pop() || 'no label', key: tag.replaceAll('|', '-'), group: tag.split('|')[0]})
     })
   }
+  groupsObject[groupName] = {
+    groupName,
+    tags: groupsObject[groupName] ? [...groupsObject[groupName].tags, ...tempTags] : tempTags
+  }
   return groupsObject
 }
 

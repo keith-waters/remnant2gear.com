@@ -1,5 +1,5 @@
 import { useState, useEffect, MouseEventHandler } from 'react';
-import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton } from "@mui/material";
+import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton, Menu, MenuItem, MenuList } from "@mui/material";
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
@@ -7,9 +7,18 @@ import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import MenuIcon from '@mui/icons-material/Menu'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>}) => {
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   return (
   <AppBar position="static" sx={{ paddingLeft: !showDesktopDrawer ? 'inherit' : theme.spacing(40)}}>
   <Toolbar>
@@ -33,6 +42,27 @@ const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>
     >
       Remnant 2 Gear
     </Typography>
+    <IconButton
+        onClick={handleClick}
+      >
+        <MoreVertIcon />
+      </IconButton>
+      <Menu 
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        sx={{
+          '& .MuiMenu-paper': { width: theme.spacing(20) },
+        }}
+      >
+        <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/contact'>
+          <MenuItem>
+            Contact
+          </MenuItem>
+        </Link>
+      </Menu>
   </Toolbar>
   </AppBar>
   )
@@ -45,7 +75,10 @@ const StandardContent = ({gear}:{gear:any}) => {
         {gear.name}
       </Typography>
       <Chip size='small' label={gear.equipmentType} />
-      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
+        <strong>Effect: </strong>
+        <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      </Typography>
     </CardContent>
   )
 }
@@ -76,9 +109,15 @@ const MutatorContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
       <Chip size='small' label={gear.mutatorType} sx={{marginRight: theme.spacing(1)}}/>
-      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
+        <strong>Effect: </strong>
+        <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      </Typography>
       <Divider />
-      <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.mutatorMaxLevelBonus}</Typography>
+      <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
+        <strong>Max level bonus: </strong>
+        <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.mutatorMaxLevelBonus}}></Typography>
+      </Typography>
     </CardContent>
   )
 }
