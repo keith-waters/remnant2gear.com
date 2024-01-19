@@ -1,5 +1,5 @@
 import { useState, useEffect, MouseEventHandler } from 'react';
-import { Box, Button, Chip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton, Menu, MenuItem, MenuList } from "@mui/material";
+import { Box, Button, Chip as MuiChip, Checkbox, Drawer, FormControlLabel, FormControl, Typography, Card, CardActionArea, CardContent, CardMedia, Divider, AppBar, Toolbar, IconButton, Menu, MenuItem, MenuList } from "@mui/material";
 import theme from '../theme'
 import Link from 'next/link'
 import { useForm, Controller } from 'react-hook-form'
@@ -8,6 +8,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import MenuIcon from '@mui/icons-material/Menu'
 import LaunchIcon from '@mui/icons-material/Launch';
+
+const Chip = (props:any) => {
+  return <MuiChip sx={{marginRight: theme.spacing(1), marginBottom: theme.spacing(1)}} {...props} />
+}
 
 const baseUrl = 'https://remnant2.wiki.fextralife.com'
 const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>}) => {
@@ -45,7 +49,15 @@ const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>
   )
 }
 
+const getGearTags = (gear:{}) => {
+  const tags:any[] = []
+  Object.entries(gear).forEach(([key, value]) => {
+    if(value === '1') tags.push(key.split('-').pop())
+  })
+  return tags;
+}
 const StandardContent = ({gear}:{gear:any}) => {
+  const tags = getGearTags(gear)
   return (
     <CardContent sx={{padding: 0}}>
       <Typography variant='h4'>
@@ -53,6 +65,7 @@ const StandardContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} />
       {gear.archetype && <Chip size='small' label={gear.archetype} />}
+      {tags.map(t => <Chip size='small' label={t} key={t} />)}
       <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
       <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
         <Typography sx={{ '&:hover': {textDecoration: 'underline'}, marginTop: theme.spacing(2) }}>
@@ -64,6 +77,7 @@ const StandardContent = ({gear}:{gear:any}) => {
 }
 
 const PerkContent = ({gear}:{gear:any}) => {
+  const tags = getGearTags(gear)
   return (
     <CardContent sx={{padding: 0}}>
       <Typography variant='h4'>
@@ -71,6 +85,7 @@ const PerkContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
       <Chip size='small' label={gear.archetype} sx={{marginRight: theme.spacing(1)}}/>
+      {tags.map(t => <Chip size='small' label={t} key={t} />)}
       <Typography color='text.secondary'><strong>Effect: </strong>{gear.perkEffect}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Upgrade 1: </strong>{gear.perkUpgrade1}</Typography>
@@ -86,6 +101,7 @@ const PerkContent = ({gear}:{gear:any}) => {
 }
 
 const MutatorContent = ({gear}:{gear:any}) => {
+  const tags = getGearTags(gear)
   return (
     <CardContent sx={{padding: 0}}>
       <Typography variant='h4'>
@@ -93,6 +109,7 @@ const MutatorContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
       <Chip size='small' label={gear.mutatorType} sx={{marginRight: theme.spacing(1)}}/>
+      {tags.map(t => <Chip size='small' label={t} key={t} />)}
       <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
       <Divider />
       <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
@@ -109,12 +126,14 @@ const MutatorContent = ({gear}:{gear:any}) => {
 }
 
 const TraitContent = ({gear}:{gear:any}) => {
+  const tags = getGearTags(gear)
   return (
     <CardContent sx={{padding: 0}}>
       <Typography variant='h4'>
         {gear.name}
       </Typography>
       <Chip size='small' label={gear.traitType} sx={{marginRight: theme.spacing(1)}}/>
+      {tags.map(t => <Chip size='small' label={t} key={t} />)}
       <Typography color='text.secondary'>{gear.traitEffect}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.traitMaxLevel}</Typography>
