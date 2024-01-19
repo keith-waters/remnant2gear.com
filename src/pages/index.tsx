@@ -7,7 +7,9 @@ import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import MenuIcon from '@mui/icons-material/Menu'
+import LaunchIcon from '@mui/icons-material/Launch';
 
+const baseUrl = 'https://remnant2.wiki.fextralife.com'
 const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>}) => {
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
   return (
@@ -50,10 +52,13 @@ const StandardContent = ({gear}:{gear:any}) => {
         {gear.name}
       </Typography>
       <Chip size='small' label={gear.equipmentType} />
-      <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
-        <strong>Effect: </strong>
-        <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
-      </Typography>
+      {gear.archetype && <Chip size='small' label={gear.archetype} />}
+      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
+      <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
+        <Typography sx={{ '&:hover': {textDecoration: 'underline'}, marginTop: theme.spacing(2) }}>
+          Go to Remnant 2 wiki <LaunchIcon sx={{ height: '1rem', width: '1rem'}}/>
+        </Typography>
+      </Link>
     </CardContent>
   )
 }
@@ -72,6 +77,11 @@ const PerkContent = ({gear}:{gear:any}) => {
       <Typography color='text.secondary'><strong>Upgrade 1: </strong>{gear.perkUpgrade1}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Upgrade 2: </strong>{gear.perkUpgrade2}</Typography>
+      <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
+        <Typography sx={{ '&:hover': {textDecoration: 'underline'}, marginTop: theme.spacing(2) }}>
+          Go to Remnant 2 wiki <LaunchIcon sx={{ height: '1rem', width: '1rem'}}/>
+        </Typography>
+      </Link>
     </CardContent>
   )
 }
@@ -93,6 +103,11 @@ const MutatorContent = ({gear}:{gear:any}) => {
         <strong>Max level bonus: </strong>
         <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.mutatorMaxLevelBonus}}></Typography>
       </Typography>
+      <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
+        <Typography sx={{ '&:hover': {textDecoration: 'underline'}, marginTop: theme.spacing(2) }}>
+          Go to Remnant 2 wiki <LaunchIcon sx={{ height: '1rem', width: '1rem'}}/>
+        </Typography>
+      </Link>
     </CardContent>
   )
 }
@@ -107,6 +122,11 @@ const TraitContent = ({gear}:{gear:any}) => {
       <Typography color='text.secondary'><strong>Effect: </strong>{gear.traitEffect}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.traitMaxLevel}</Typography>
+      <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
+        <Typography sx={{ '&:hover': {textDecoration: 'underline'}, marginTop: theme.spacing(2) }}>
+          Go to Remnant 2 wiki <LaunchIcon sx={{ height: '1rem', width: '1rem'}}/>
+        </Typography>
+      </Link>
     </CardContent>
   )
 }
@@ -119,25 +139,22 @@ const GearCardContent = ({gear}:{gear:any}) => {
 }
 
 function GearCard({gear}: {gear: any}) {
-  const baseUrl = 'https://remnant2.wiki.fextralife.com'
   const imgUrl = gear.wikiImageUrl ? baseUrl + gear.wikiImageUrl : '/android-chrome-192x192.png'
   return (
-    <CardActionArea LinkComponent={Link} href={gear.url} sx={{marginBottom: theme.spacing(2)}}>
-      <Card variant='outlined' sx={{display: 'flex', padding: theme.spacing(1), maxWidth: '88vw'}}>
-          <CardMedia 
-            component='img'
-            src={imgUrl}
-            sx={{
-              display: 'block',
-              width: '75px',
-              height: '75px',
-              marginRight: theme.spacing(1)
-            }}
-            alt={gear.wikiImageAltText}
-          />
-          <GearCardContent gear={gear} />
-      </Card>
-    </CardActionArea>
+    <Card variant='outlined' sx={{display: 'flex', padding: theme.spacing(1), maxWidth: '88vw', marginBottom: theme.spacing(2)}}>
+        <CardMedia 
+          component='img'
+          src={imgUrl}
+          sx={{
+            display: 'block',
+            width: '75px',
+            height: '75px',
+            marginRight: theme.spacing(1)
+          }}
+          alt={gear.wikiImageAltText}
+        />
+        <GearCardContent gear={gear} />
+    </Card>
   )
 }
 
