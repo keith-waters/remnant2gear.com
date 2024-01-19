@@ -71,7 +71,6 @@ const PerkContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
       <Chip size='small' label={gear.archetype} sx={{marginRight: theme.spacing(1)}}/>
-      <Chip size='small' label={gear.perkType} sx={{marginRight: theme.spacing(1)}}/>
       <Typography color='text.secondary'><strong>Effect: </strong>{gear.perkEffect}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Upgrade 1: </strong>{gear.perkUpgrade1}</Typography>
