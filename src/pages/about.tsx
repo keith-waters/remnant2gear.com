@@ -5,16 +5,8 @@ import Link from 'next/link'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 const R2GAppBar = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   return (
-  <AppBar position="static">
+  <AppBar position="sticky">
   <Toolbar>
     <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/'>
       <Typography
@@ -26,27 +18,11 @@ const R2GAppBar = () => {
       </Typography>
     </Link>
     <Box sx={{ flexGrow: 1 }}/>
-    <IconButton
-        onClick={handleClick}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu 
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        sx={{
-          '& .MuiMenu-paper': { width: theme.spacing(20) },
-        }}
-      >
-        <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/contact'>
-          <MenuItem>
-            Contact
-          </MenuItem>
-        </Link>
-      </Menu>
+    <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/about'>
+      <Typography sx={{ '&:hover': {textDecoration: 'underline'}}}>
+        About 
+      </Typography>
+    </Link>
   </Toolbar>
   </AppBar>
   )

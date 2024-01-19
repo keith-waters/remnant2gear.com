@@ -7,20 +7,11 @@ import { useGetGearData } from '../dataHelpers';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import MenuIcon from '@mui/icons-material/Menu'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>}) => {
   const showDesktopDrawer = useMediaQuery(theme.breakpoints.up('sm'));
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   return (
-  <AppBar position="static" sx={{ paddingLeft: !showDesktopDrawer ? 'inherit' : theme.spacing(40)}}>
+  <AppBar position={!showDesktopDrawer ? "fixed" : "static"} sx={{ paddingLeft: !showDesktopDrawer ? 'inherit' : theme.spacing(40)}}>
   <Toolbar>
     {!showDesktopDrawer && 
       <IconButton
@@ -42,27 +33,11 @@ const R2GAppBar = ({openDrawer}:{openDrawer:MouseEventHandler<HTMLButtonElement>
     >
       Remnant 2 Gear
     </Typography>
-    <IconButton
-        onClick={handleClick}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu 
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        sx={{
-          '& .MuiMenu-paper': { width: theme.spacing(20) },
-        }}
-      >
-        <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/contact'>
-          <MenuItem>
-            Contact
-          </MenuItem>
-        </Link>
-      </Menu>
+    <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} href='/about'>
+      <Typography sx={{ '&:hover': {textDecoration: 'underline'}}}>
+        About 
+      </Typography>
+    </Link>
   </Toolbar>
   </AppBar>
   )
@@ -215,21 +190,20 @@ const Home = () => {
   }
 
   const DrawerContent = ({showDesktopDrawer, setIsMobileDrawerOpen}:{showDesktopDrawer?: boolean, setIsMobileDrawerOpen?: Function}) => (
+    <>
+    <Toolbar disableGutters sx={{position: 'fixed', zIndex: theme.zIndex.drawer + 1, width: theme.spacing(40), backgroundColor: theme.palette.grey[800]}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
+        <Button type='submit' variant='contained' onClick={() => {
+          if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
+          handleSubmit(filterData)()
+        }}>Apply filters</Button>
+        <Button variant='contained' onClick={() => {
+          if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
+          handleReset()
+        }}>Reset</Button>
+      </Box>
+    </Toolbar>
     <Box sx={{ marginRight: theme.spacing(2), marginLeft: theme.spacing(2), marginBottom: theme.spacing(2)}}>
-
-      <Toolbar disableGutters sx={{position: 'fixed', zIndex: theme.zIndex.drawer + 1, width: theme.spacing(32)}}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-around', width: '100%' }}>
-          <Button type='submit' variant='contained' onClick={() => {
-            if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
-            handleSubmit(filterData)()
-          }}>Apply filters</Button>
-          <Button variant='contained' onClick={() => {
-            if(!showDesktopDrawer && setIsMobileDrawerOpen) setIsMobileDrawerOpen(false)
-            handleReset()
-          }}>Reset</Button>
-        </Box>
-      </Toolbar>
-
       <FormControl sx={{paddingTop: '64px'}}>
         {  
           Object.keys(groups).map((group:string) => {
@@ -263,6 +237,7 @@ const Home = () => {
         }
       </FormControl>
     </Box>
+    </>
   )
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
@@ -271,7 +246,7 @@ const Home = () => {
   return (
     <>
     <R2GAppBar openDrawer={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}/>
-    <Box sx={{display: 'flex'}}>
+    <Box sx={{display: 'flex', paddingTop: !showDesktopDrawer ? '56px' : 'inherit'}}>
       {showDesktopDrawer ? (
         <Drawer
           key='desktop'
