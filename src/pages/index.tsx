@@ -94,10 +94,7 @@ const MutatorContent = ({gear}:{gear:any}) => {
       </Typography>
       <Chip size='small' label={gear.equipmentType} sx={{marginRight: theme.spacing(1)}}/>
       <Chip size='small' label={gear.mutatorType} sx={{marginRight: theme.spacing(1)}}/>
-      <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
-        <strong>Effect: </strong>
-        <Typography color='text.secondary' component='span' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
-      </Typography>
+      <Typography color='text.secondary' dangerouslySetInnerHTML={{ __html: gear.descriptionHtml}}></Typography>
       <Divider />
       <Typography color='text.secondary' sx={{ marginRight: theme.spacing(1)}}>
         <strong>Max level bonus: </strong>
@@ -119,7 +116,7 @@ const TraitContent = ({gear}:{gear:any}) => {
         {gear.name}
       </Typography>
       <Chip size='small' label={gear.traitType} sx={{marginRight: theme.spacing(1)}}/>
-      <Typography color='text.secondary'><strong>Effect: </strong>{gear.traitEffect}</Typography>
+      <Typography color='text.secondary'>{gear.traitEffect}</Typography>
       <Divider />
       <Typography color='text.secondary'><strong>Max level bonus: </strong>{gear.traitMaxLevel}</Typography>
       <Link style={{ textDecoration: "none", color: theme.palette.text.primary }} target='_blank' href={baseUrl + gear.wikiUrl}>
