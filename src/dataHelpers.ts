@@ -78,7 +78,7 @@ export const useGetGearData = () => {
       download: true,
       complete: (results) => {
         const data = convertCSVToJson(results.data as string[][])
-        const cleanedData = data.filter(d => d.name)
+        const cleanedData = data.filter(d => d.name && d.doNotDisplay !== '1')
         const types = getTypes(cleanedData)
         const tags = getTagGroups(results.data[0] as string[])
         const groups = {Type: types, ...tags}
