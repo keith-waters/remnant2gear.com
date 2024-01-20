@@ -19,6 +19,10 @@ const convertCSVToJson = (lines: string[][]) => {
   return result;
 };
 
+export const removePTags = (desc: string) => {
+  return desc.replaceAll('<p>', '').replaceAll('</p>', '')
+}
+
 const getTagGroups = (_gear:string[]) => {
   type Tags = {label: string, key: string, group: string}[]
   let groupName = ''
