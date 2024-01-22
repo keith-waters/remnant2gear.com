@@ -205,7 +205,7 @@ const Home = () => {
     let params = '?'
     for (const [key, value] of Object.entries(data)) {
       if (value) {
-        params += `${key}=${value}&`
+        params += `${key.trim()}=${value}&`
       }
     }
 
